@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+        
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    ports:
+      - "5000:80"
+    depends_on:
+      - rabbitmq
+
+  worker:
+    container_name: worker
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    depends_on:
+      - rabbitmq
