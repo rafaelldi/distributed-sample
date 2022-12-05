@@ -1,8 +1,12 @@
 version: "3.8"
 
 configs:
-  collector_config: 
+  collector_config:
     file: ./collector.yaml
+
+x-common-environment:
+  &common-environment
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://collector:4317
 
 services:
   rabbitmq:
@@ -20,7 +24,8 @@ services:
     ports:
       - "5000:80"
     environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://collector:4317
+      <<: *common-environment
+      ASPNETCORE_ENVIRONMENT: Development
     depends_on:
       - rabbitmq
 
@@ -30,7 +35,8 @@ services:
       context: .
       dockerfile: worker/Dockerfile
     environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://collector:4317
+      <<: *common-environment
+      DOTNET_ENVIRONMENT: Development
     depends_on:
       - rabbitmq
       - postgres
