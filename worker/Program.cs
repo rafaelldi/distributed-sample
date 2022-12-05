@@ -1,27 +1,17 @@
-using contracts;
-using MassTransit;
+
 using Microsoft.EntityFrameworkCore;
 using worker;
+using worker.Extensions;
 
 var host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices(services =>
+    .ConfigureServices((context, services) =>
     {
         services.AddDbContext<MyDbContext>();
-        services.AddMassTransit(x =>
-            {
-                x.SetKebabCaseEndpointNameFormatter();
-
-                x.UsingRabbitMq((context, cfg) => cfg.ConfigureEndpoints(context));
-
-                x.AddHandler(async (SubmitOrderRequest request, MyDbContext context) =>
-                {
-                    context.Orders.Add(new Order(Guid.NewGuid(), request.Id));
-                    await context.SaveChangesAsync();
-
-                    return new SubmitOrderResponse($"Order {request.Id} accepted");
-                });
-            }
-        );
+        services.AddMassTransit();
+        services.AddOpenTelemetry(context);
+    }).ConfigureLogging((context, logging) =>
+    {
+        logging.AddOpenTelemetryLogging(context);
     })
     .Build();
 

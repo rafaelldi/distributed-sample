@@ -1,14 +1,12 @@
+using api.Extensions;
 using contracts;
 using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddMassTransit(x =>
-{
-    x.SetKebabCaseEndpointNameFormatter();
-
-    x.UsingRabbitMq((context, cfg) => cfg.ConfigureEndpoints(context));
-});
+builder
+    .AddMassTransit()
+    .AddOpenTelemetry();
 
 var app = builder.Build();
 
