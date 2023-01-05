@@ -1,2 +1,16 @@
-###
-GET http://localhost:5000/test
+### Ping Pong
+POST http://localhost:5000/ping-pong
+
+### Create todo
+POST http://localhost:5000/todo
+Content-Type: application/json
+
+{
+  "Id": "{{$uuid}}",
+  "Description": "{{$random.alphabetic(5)}}"
+}
+
+> {% client.global.set("todo_id", response.body.id); %}
+
+### Get todo status
+GET http://localhost:5000/todo/{{todo_id}}

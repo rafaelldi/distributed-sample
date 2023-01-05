@@ -1,12 +1,13 @@
 
 using Microsoft.EntityFrameworkCore;
-using worker;
+using worker.DbContexts;
 using worker.Extensions;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
-        services.AddDbContext<MyDbContext>();
+        services.AddDbContext<PingPongDbContext>();
+        services.AddDbContext<ToDoStateDbContext>();
         services.AddMassTransit();
         services.AddOpenTelemetry(context);
     }).ConfigureLogging((context, logging) =>
@@ -17,8 +18,10 @@ var host = Host.CreateDefaultBuilder(args)
 
 using (var scope = host.Services.CreateScope())
 {
-    var myContext = scope.ServiceProvider.GetRequiredService<MyDbContext>();
-    myContext.Database.Migrate();
+    var pingPongDbContext = scope.ServiceProvider.GetRequiredService<PingPongDbContext>();
+    pingPongDbContext.Database.Migrate();
+    var toDoStateDbContext = scope.ServiceProvider.GetRequiredService<ToDoStateDbContext>();
+    toDoStateDbContext.Database.Migrate();
 }
 
 await host.RunAsync();

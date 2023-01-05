@@ -1,5 +1,10 @@
 ﻿using contracts;
+using contracts.PingPong;
 using MassTransit;
+using worker.Activities;
+using worker.Consumers;
+using worker.DbContexts;
+using worker.StateMachine;
 
 namespace worker.Extensions;
 
@@ -13,12 +18,24 @@ public static class MassTransitExtensions
 
                 x.UsingRabbitMq((context, cfg) => cfg.ConfigureEndpoints(context));
 
-                x.AddHandler(async (SubmitOrderRequest request, MyDbContext context) =>
+                x.AddHandler(async (PingPongRequest request, PingPongDbContext context) =>
                 {
-                    context.Orders.Add(new Order(Guid.NewGuid(), request.Id));
+                    context.PingPongModels.Add(new PingPongModel(Guid.NewGuid(), request.Value));
                     await context.SaveChangesAsync();
 
-                    return new SubmitOrderResponse($"Order {request.Id} accepted");
+                    return new PingPongResponse($"{request.Value}-pong");
+                });
+
+                x.AddConsumer<CreateToDoConsumer>();
+                x.AddConsumer<ProcessToDoConsumer>();
+                x.AddExecuteActivity<CompleteToDoActivity, CompleteToDoArguments>();
+
+                x.AddSagaStateMachine<ToDoStateMachine, ToDoState>();
+
+                x.SetEntityFrameworkSagaRepositoryProvider(r =>
+                {
+                    r.ExistingDbContext<ToDoStateDbContext>();
+                    r.UsePostgres();
                 });
             }
         );

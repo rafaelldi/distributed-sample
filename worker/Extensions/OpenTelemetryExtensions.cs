@@ -32,6 +32,7 @@ public static class OpenTelemetryExtensions
                         "System.Net.NameResolution",
                         "System.Net.Security");
                 })
+                .AddMeter("MassTransit")
                 .AddOtlpExporter();
         });
 

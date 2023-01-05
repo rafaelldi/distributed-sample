@@ -2,21 +2,18 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using worker;
+using worker.DbContexts;
 
 #nullable disable
 
-namespace worker.Migrations
+namespace worker.Migrations.PingPongDb
 {
-    [DbContext(typeof(MyDbContext))]
-    [Migration("20221203190524_Initial")]
-    partial class Initial
+    [DbContext(typeof(PingPongDbContext))]
+    partial class PingPongDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,19 +22,19 @@ namespace worker.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("worker.Order", b =>
+            modelBuilder.Entity("worker.DbContexts.PingPongModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("OrderId")
+                    b.Property<string>("Value")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Orders");
+                    b.ToTable("PingPongModels");
                 });
 #pragma warning restore 612, 618
         }
